@@ -1,0 +1,10 @@
+<resources>
+
+    <dimen name="padding">16dp</dimen>
+
+    <dimen name="search_view_height">200dp</dimen>
+
+    <dimen name="artist_image_width">100dp</dimen>
+    <dimen name="artist_image_height">100dp</dimen>
+
+</resources>
