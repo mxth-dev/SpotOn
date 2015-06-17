@@ -19,20 +19,21 @@ import java.util.ArrayList;
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.adapter.SearchAdapter;
 import at.dingbat.spoton.data.ParcelableArtist;
+import at.dingbat.spoton.fragment.ArtistFragment;
+import at.dingbat.spoton.fragment.SearchFragment;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
 import at.dingbat.spoton.widget.recyclerview.dataholder.ArtistListItemDataHolder;
 import at.dingbat.spoton.widget.recyclerview.dataholder.SearchViewDataHolder;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.Artists;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class SearchActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity {
 
     public static final String PARCEL_RECYCLER_ADAPTER = "recycler_adapter";
     public static final String PARCEL_TOOLBAR_VISIBLE = "toolbarVisible";
@@ -41,10 +42,6 @@ public class SearchActivity extends ActionBarActivity {
     private SpotifyService spotify;
 
     private Toolbar toolbar;
-
-    private RecyclerView recycler;
-    private LinearLayoutManager recycler_layout;
-    private SearchAdapter recycler_adapter;
 
     private ValueAnimator hideToolbar;
     private ValueAnimator showToolbar;
@@ -57,54 +54,67 @@ public class SearchActivity extends ActionBarActivity {
 
     private Toast toast;
 
+    private SearchFragment searchFragment;
+    private ArtistFragment artistFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_main);
 
         api = new SpotifyApi();
         spotify = api.getService();
 
-        toolbar = (Toolbar) findViewById(R.id.activity_search_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
         setSupportActionBar(toolbar);
 
-        recycler = (RecyclerView) findViewById(R.id.activity_search_recycler);
-        recycler_layout = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        recycler.setLayoutManager(recycler_layout);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         if(savedInstanceState != null) {
-            recycler_adapter = savedInstanceState.getParcelable(PARCEL_RECYCLER_ADAPTER);
             boolean tv = savedInstanceState.getBoolean(PARCEL_TOOLBAR_VISIBLE);
             if(tv) showToolbar();
             else hideToolbar();
         } else {
-            recycler_adapter = new SearchAdapter(new ArrayList<DataHolder>() {{
-                add(new SearchViewDataHolder());
-            }});
+            showSearch();
         }
-
-        recycler.setAdapter(recycler_adapter);
 
         colorPrimary = getResources().getColor(R.color.colorPrimary);
 
-        recycler.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+    }
 
-                int position = recycler_layout.findFirstVisibleItemPosition();
-                if (position == 0) {
-                    View v = recycler_layout.findViewByPosition(position);
-                    if (v.getTop() >= 0) {
-                        hideToolbar();
-                    } else {
-                        showToolbar();
-                    }
-                }
-            }
-        });
+    public void showSearch() {
+        searchFragment = new SearchFragment();
+        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, searchFragment, "Search").commit();
+    }
 
+    public void showArtist(ParcelableArtist artist) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("artist", artist);
+        artistFragment = new ArtistFragment();
+        artistFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
+    }
+
+    public void search(String term) {
+        if(searchFragment != null) searchFragment.search(term);
+    }
+
+    public SpotifyService getSpotify() {
+        return spotify;
+    }
+
+    public void setToolbarText(String text) {
+        toolbar.setTitle(text);
+    }
+
+    public void showToolbarBackArrow(boolean show) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(show);
     }
 
     public void showToolbar() {
@@ -165,32 +175,6 @@ public class SearchActivity extends ActionBarActivity {
         }
     }
 
-    public void search(String term) {
-        spotify.searchArtists(term, new Callback<ArtistsPager>() {
-            @Override
-            public void success(ArtistsPager artistsPager, Response response) {
-                final ArrayList<DataHolder> items = new ArrayList<DataHolder>();
-                for (Artist artist : artistsPager.artists.items) {
-                    items.add(new ArtistListItemDataHolder(new ParcelableArtist(artist)));
-                }
-                SearchActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(items.size() == 0) {
-                            showToast("Nothing found.", Toast.LENGTH_SHORT);
-                        }
-                        recycler_adapter.replaceAll(1, items);
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("", "Error: "+error.getMessage());
-            }
-        });
-    }
-
     public void showToast(String message, int duration) {
         if(toast != null) toast.cancel();
         toast = Toast.makeText(this, message, duration);
@@ -220,9 +204,16 @@ public class SearchActivity extends ActionBarActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if(getFragmentManager().getBackStackEntryCount() > 0) {
+            getFragmentManager().popBackStack();
+        } else super.onBackPressed();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(PARCEL_RECYCLER_ADAPTER, recycler_adapter);
+        //outState.putParcelable(PARCEL_RECYCLER_ADAPTER, recycler_adapter);
         outState.putBoolean(PARCEL_TOOLBAR_VISIBLE, toolbarVisible);
     }
 

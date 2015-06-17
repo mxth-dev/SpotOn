@@ -11,18 +11,17 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import at.dingbat.spoton.R;
-import at.dingbat.spoton.activity.SearchActivity;
+import at.dingbat.spoton.activity.MainActivity;
 import at.dingbat.spoton.adapter.SearchAdapter;
 import at.dingbat.spoton.data.ParcelableArtist;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
-import kaaes.spotify.webapi.android.models.Artist;
 
 /**
  * Created by bendix on 05.06.15.
  */
 public class ArtistListItem extends RelativeLayout implements DataHolder {
 
-    private SearchActivity context;
+    private MainActivity context;
 
     private ParcelableArtist artist;
 
@@ -43,7 +42,7 @@ public class ArtistListItem extends RelativeLayout implements DataHolder {
         super(context);
         inflate(context, R.layout.widget_artist_list_item, this);
 
-        this.context = (SearchActivity) context;
+        this.context = (MainActivity) context;
 
         image = (ImageView) findViewById(R.id.widget_artist_list_item_image);
         text = (TextView) findViewById(R.id.widget_artist_list_item_text);
@@ -54,7 +53,7 @@ public class ArtistListItem extends RelativeLayout implements DataHolder {
 
     }
 
-    public void setArtist(ParcelableArtist artist) {
+    public void setArtist(final ParcelableArtist artist) {
         this.artist = artist;
         if(initialized) {
             if(artist == null) Log.d("", "Artist is null!");
@@ -68,7 +67,7 @@ public class ArtistListItem extends RelativeLayout implements DataHolder {
                 setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d("", "Showing artist!");
+                        context.showArtist(artist);
                     }
                 });
             }

@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import at.dingbat.spoton.activity.SearchActivity;
-import at.dingbat.spoton.data.ParcelableArtist;
 import at.dingbat.spoton.widget.ArtistListItem;
 import at.dingbat.spoton.widget.SearchView;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;

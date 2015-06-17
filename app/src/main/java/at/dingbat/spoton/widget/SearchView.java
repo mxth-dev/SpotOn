@@ -5,9 +5,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
-import android.os.Parcelable;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,8 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import at.dingbat.spoton.R;
-import at.dingbat.spoton.activity.SearchActivity;
-import at.dingbat.spoton.adapter.SearchAdapter;
+import at.dingbat.spoton.activity.MainActivity;
 import at.dingbat.spoton.widget.recyclerview.dataholder.SearchViewDataHolder;
 
 /**
@@ -27,7 +23,7 @@ import at.dingbat.spoton.widget.recyclerview.dataholder.SearchViewDataHolder;
  */
 public class SearchView extends RelativeLayout {
 
-    private SearchActivity context;
+    private MainActivity context;
 
     private ImageView image;
     private EditText text;
@@ -47,7 +43,7 @@ public class SearchView extends RelativeLayout {
     public SearchView(Context context) {
         super(context);
 
-        this.context = (SearchActivity) context;
+        this.context = (MainActivity) context;
 
         inflate(context, R.layout.widget_search_view, this);
 
