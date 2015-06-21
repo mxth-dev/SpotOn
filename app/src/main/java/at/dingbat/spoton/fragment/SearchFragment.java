@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.activity.MainActivity;
-import at.dingbat.spoton.adapter.SearchAdapter;
+import at.dingbat.spoton.adapter.Adapter;
 import at.dingbat.spoton.data.ParcelableArtist;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
 import at.dingbat.spoton.widget.recyclerview.dataholder.ArtistListItemDataHolder;
@@ -40,7 +40,7 @@ public class SearchFragment extends Fragment {
 
     private RecyclerView recycler;
     private LinearLayoutManager recycler_layout;
-    private SearchAdapter recycler_adapter;
+    private Adapter recycler_adapter;
 
     public boolean isToolbarShown;
 
@@ -62,7 +62,7 @@ public class SearchFragment extends Fragment {
             recycler_layout = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
             recycler.setLayoutManager(recycler_layout);
 
-            recycler_adapter = new SearchAdapter(new ArrayList<DataHolder>() {{
+            recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
                 add(new SearchViewDataHolder());
             }});
 
@@ -109,6 +109,7 @@ public class SearchFragment extends Fragment {
                             context.showToast("Artist not found.", Toast.LENGTH_SHORT);
                         }
                         recycler_adapter.replaceAll(1, items);
+                        recycler_adapter.notifyDataSetChanged();
                     }
                 });
             }

@@ -12,14 +12,12 @@ import com.squareup.picasso.Picasso;
 
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.activity.MainActivity;
-import at.dingbat.spoton.adapter.SearchAdapter;
 import at.dingbat.spoton.data.ParcelableArtist;
-import at.dingbat.spoton.widget.recyclerview.DataHolder;
 
 /**
  * Created by bendix on 05.06.15.
  */
-public class ArtistListItem extends RelativeLayout implements DataHolder {
+public class ArtistListItem extends RelativeLayout {
 
     private MainActivity context;
 
@@ -72,11 +70,6 @@ public class ArtistListItem extends RelativeLayout implements DataHolder {
                 });
             }
         }
-    }
-
-    @Override
-    public int getItemViewId() {
-        return SearchAdapter.TYPE_ARTIST;
     }
 
 }

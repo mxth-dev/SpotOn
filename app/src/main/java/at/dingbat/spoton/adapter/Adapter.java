@@ -8,36 +8,42 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import at.dingbat.spoton.activity.MainActivity;
+import at.dingbat.spoton.widget.ArtistHeaderView;
 import at.dingbat.spoton.widget.ArtistListItem;
 import at.dingbat.spoton.widget.SearchView;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
+import at.dingbat.spoton.widget.recyclerview.dataholder.ArtistHeaderViewDataHolder;
 import at.dingbat.spoton.widget.recyclerview.dataholder.ArtistListItemDataHolder;
 import at.dingbat.spoton.widget.recyclerview.dataholder.SearchViewDataHolder;
 
 /**
  * Created by bendix on 05.06.15.
  */
-public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Parcelable {
+public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Parcelable {
 
     public static final int TYPE_ARTIST = 0;
     public static final int TYPE_SEARCH_HEADER = 1;
+    public static final int TYPE_ARTIST_HEADER = 2;
+    public static final int TYPE_SONG = 3;
 
     private ArrayList<DataHolder> items;
 
-    public SearchAdapter(ArrayList<DataHolder> items) {
+    public Adapter(ArrayList<DataHolder> items) {
         this.items = items;
         notifyDataSetChanged();
     }
 
-    public SearchAdapter(Parcel parcel) {
-        Parcelable[] arr = parcel.readParcelableArray(new ClassLoader() {
+    public Adapter(Parcel parcel) {
+        /*Parcelable[] arr = parcel.readParcelableArray(new ClassLoader() {
             @Override
             protected Class<?> findClass(String className) throws ClassNotFoundException {
                 if(className.equals(ArtistListItemDataHolder.class.getName())) return ArtistListItemDataHolder.class;
                 else if(className.equals(SearchViewDataHolder.class.getName())) return SearchViewDataHolder.class;
                 return super.findClass(className);
             }
-        });
+        });*/
+        Parcelable[] arr = parcel.readParcelableArray(ClassLoader.getSystemClassLoader());
         items = new ArrayList<DataHolder>();
         for(Parcelable p: arr) {
             items.add((DataHolder) p);
@@ -57,6 +63,8 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 return new ArtistListItem.ViewHolder(new ArtistListItem(parent.getContext()));
             case TYPE_SEARCH_HEADER:
                 return new SearchView.ViewHolder(new SearchView(parent.getContext()));
+            case TYPE_ARTIST_HEADER:
+                return new ArtistHeaderView.ViewHolder(new ArtistHeaderView(parent.getContext()));
             default:
                 return null;
         }
@@ -70,6 +78,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 break;
             case TYPE_SEARCH_HEADER:
                 ((SearchView.ViewHolder)holder).item.setHolder((SearchViewDataHolder)items.get(position));
+                break;
+            case TYPE_ARTIST_HEADER:
+                ((ArtistHeaderView.ViewHolder)holder).item.setArtist(((ArtistHeaderViewDataHolder)items.get(position)).artist);
                 break;
         }
     }
@@ -103,6 +114,9 @@ public class SearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     break;
                 case TYPE_SEARCH_HEADER:
                     arr[i] = (SearchViewDataHolder) items.get(i);
+                    break;
+                case TYPE_ARTIST_HEADER:
+                    arr[i] = (ArtistHeaderViewDataHolder) items.get(i);
                     break;
                 default:
                     arr[i] = null;
