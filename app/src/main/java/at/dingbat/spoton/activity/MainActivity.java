@@ -5,38 +5,24 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import at.dingbat.spoton.R;
-import at.dingbat.spoton.adapter.SearchAdapter;
-import at.dingbat.spoton.data.ParcelableArtist;
+import at.dingbat.spoton.models.ParcelableArtist;
 import at.dingbat.spoton.fragment.ArtistFragment;
 import at.dingbat.spoton.fragment.SearchFragment;
-import at.dingbat.spoton.widget.recyclerview.DataHolder;
-import at.dingbat.spoton.widget.recyclerview.dataholder.ArtistListItemDataHolder;
-import at.dingbat.spoton.widget.recyclerview.dataholder.SearchViewDataHolder;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class MainActivity extends ActionBarActivity {
 
     public static final String PARCEL_RECYCLER_ADAPTER = "recycler_adapter";
-    public static final String PARCEL_TOOLBAR_VISIBLE = "toolbarVisible";
+    public static final String PARCEL_TOOLBAR_VISIBLE = "toolbar_visible";
 
     private SpotifyApi api;
     private SpotifyService spotify;

@@ -3,14 +3,9 @@ package at.dingbat.spoton.widget.recyclerview.dataholder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.AbstractList;
-
-import at.dingbat.spoton.adapter.SearchAdapter;
-import at.dingbat.spoton.data.ParcelableArtist;
-import at.dingbat.spoton.widget.ArtistListItem;
+import at.dingbat.spoton.adapter.Adapter;
+import at.dingbat.spoton.models.ParcelableArtist;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.Image;
 
 /**
  * Created by bendix on 05.06.15.
@@ -29,7 +24,7 @@ public class ArtistListItemDataHolder implements DataHolder, Parcelable {
 
     @Override
     public int getItemViewId() {
-        return SearchAdapter.TYPE_ARTIST;
+        return Adapter.TYPE_ARTIST;
     }
 
     @Override

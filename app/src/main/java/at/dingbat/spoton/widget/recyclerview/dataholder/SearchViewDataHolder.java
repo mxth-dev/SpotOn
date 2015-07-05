@@ -3,7 +3,7 @@ package at.dingbat.spoton.widget.recyclerview.dataholder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import at.dingbat.spoton.adapter.SearchAdapter;
+import at.dingbat.spoton.adapter.Adapter;
 import at.dingbat.spoton.widget.recyclerview.DataHolder;
 
 /**
@@ -35,7 +35,7 @@ public class SearchViewDataHolder implements DataHolder, Parcelable {
 
     @Override
     public int getItemViewId() {
-        return SearchAdapter.TYPE_SEARCH_HEADER;
+        return Adapter.TYPE_SEARCH_HEADER;
     }
 
     @Override

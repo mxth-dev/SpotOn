@@ -1,4 +1,4 @@
-package at.dingbat.spoton.data;
+package at.dingbat.spoton.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

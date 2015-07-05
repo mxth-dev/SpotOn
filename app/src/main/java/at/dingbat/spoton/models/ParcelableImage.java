@@ -1,4 +1,4 @@
-package at.dingbat.spoton.data;
+package at.dingbat.spoton.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -9,6 +9,18 @@ import kaaes.spotify.webapi.android.models.Image;
  * Created by bendix on 06.06.15.
  */
 public class ParcelableImage extends Image implements Parcelable {
+    public static Creator CREATOR = new Creator() {
+
+        @Override
+        public ParcelableImage createFromParcel(Parcel source) {
+            return new ParcelableImage(source);
+        }
+
+        @Override
+        public ParcelableImage[] newArray(int size) {
+            return new ParcelableImage[size];
+        }
+    };
 
     public ParcelableImage(Image image) {
         this.width = image.width;
