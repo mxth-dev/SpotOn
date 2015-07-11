@@ -46,75 +46,90 @@ public class ArtistFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
-        root = (RelativeLayout) inflater.inflate(R.layout.fragment_artist, null);
 
-        context = (MainActivity) getActivity();
+        if(root == null) {
+            root = (RelativeLayout) inflater.inflate(R.layout.fragment_artist, null);
 
-        recycler = (RecyclerView) root.findViewById(R.id.fragment_artist_recycler);
-        recycler_layout = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        recycler.setLayoutManager(recycler_layout);
+            context = (MainActivity) getActivity();
 
-        artist = getArguments().getParcelable("artist");
+            recycler = (RecyclerView) root.findViewById(R.id.fragment_artist_recycler);
+            recycler_layout = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
+            recycler.setLayoutManager(recycler_layout);
 
-        recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
-            add(new ArtistHeaderViewDataHolder(artist));
-            add(new SubtitleViewDataHolder("Top Tracks"));
-        }});
+            artist = getArguments().getParcelable("artist");
 
-        recycler.setAdapter(recycler_adapter);
+            if(savedInstanceState != null) {
+                recycler_adapter = savedInstanceState.getParcelable("adapter");
+            } else {
+                recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
+                    add(new ArtistHeaderViewDataHolder(artist));
+                    add(new SubtitleViewDataHolder("Top Tracks"));
+                }});
+            }
 
-        context.setToolbarText("");
-        context.showToolbarBackArrow(true);
-        context.hideToolbar();
+            recycler.setAdapter(recycler_adapter);
 
-        isToolbarShown = false;
+            context.setToolbarText("");
+            context.showToolbarBackArrow(true);
+            context.hideToolbar();
 
-        recycler.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+            isToolbarShown = false;
 
-                int position = recycler_layout.findFirstVisibleItemPosition();
-                if (position == 0) {
-                    View v = recycler_layout.findViewByPosition(position);
-                    if (v.getTop() >= 0) {
-                        isToolbarShown = false;
-                        context.hideToolbar();
-                    } else {
-                        isToolbarShown = true;
-                        context.showToolbar();
+            recycler.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+
+                    int position = recycler_layout.findFirstVisibleItemPosition();
+                    if (position == 0) {
+                        View v = recycler_layout.findViewByPosition(position);
+                        if (v.getTop() >= 0) {
+                            isToolbarShown = false;
+                            context.hideToolbar();
+                        } else {
+                            isToolbarShown = true;
+                            context.showToolbar();
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        tracks = new ArrayList<>();
+            tracks = new ArrayList<>();
 
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("country", "US");
+            if(recycler_adapter.getItemCount() < 3) {
+                HashMap<String, Object> params = new HashMap<>();
+                params.put("country", "US");
 
-        context.getSpotify().getArtistTopTrack(artist.id, params, new Callback<Tracks>() {
-            @Override
-            public void success(Tracks ts, Response response) {
-                for (Track t : ts.tracks) {
-                    tracks.add(new TrackViewDataHolder(new ParcelableTrack(t)));
-                }
-                context.runOnUiThread(new Runnable() {
+                context.getSpotify().getArtistTopTrack(artist.id, params, new Callback<Tracks>() {
                     @Override
-                    public void run() {
-                        recycler_adapter.replaceAll(2, tracks);
-                        recycler_adapter.notifyDataSetChanged();
+                    public void success(Tracks ts, Response response) {
+                        for (Track t : ts.tracks) {
+                            tracks.add(new TrackViewDataHolder(new ParcelableTrack(t)));
+                        }
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                recycler_adapter.replaceAll(2, tracks);
+                                recycler_adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+
                     }
                 });
             }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
+        }
 
         return root;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putParcelable("adapter", recycler_adapter);
+    }
 }

@@ -19,7 +19,8 @@
             <ImageView
                 android:id="@+id/widget_track_view_image"
                 android:layout_width="100dp"
-                android:layout_height="100dp" />
+                android:layout_height="100dp"
+                android:src="@mipmap/ic_placeholder" />
 
             <TextView
                 android:id="@+id/widget_track_view_title"

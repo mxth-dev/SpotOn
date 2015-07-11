@@ -16,7 +16,8 @@
             android:id="@+id/widget_artist_list_item_image"
             android:layout_width="@dimen/artist_image_width"
             android:layout_height="@dimen/artist_image_height"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_placeholder"/>
 
         <TextView
             android:id="@+id/widget_artist_list_item_text"

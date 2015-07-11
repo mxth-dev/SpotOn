@@ -42,7 +42,7 @@ public class SearchFragment extends Fragment {
     private LinearLayoutManager recycler_layout;
     private Adapter recycler_adapter;
 
-    public boolean isToolbarShown;
+    public boolean isToolbarVisible;
 
     public SearchFragment() { }
 
@@ -62,9 +62,16 @@ public class SearchFragment extends Fragment {
             recycler_layout = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
             recycler.setLayoutManager(recycler_layout);
 
-            recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
-                add(new SearchViewDataHolder());
-            }});
+            if(savedInstanceState != null) {
+                recycler_adapter = savedInstanceState.getParcelable("adapter");
+                isToolbarVisible = savedInstanceState.getBoolean("isToolbarVisible");
+                if(isToolbarVisible) context.showToolbar();
+                else context.hideToolbar();
+            } else {
+                recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
+                    add(new SearchViewDataHolder());
+                }});
+            }
 
             recycler.setAdapter(recycler_adapter);
 
@@ -77,18 +84,21 @@ public class SearchFragment extends Fragment {
                     if (position == 0) {
                         View v = recycler_layout.findViewByPosition(position);
                         if (v.getTop() >= 0) {
-                            isToolbarShown = false;
+                            isToolbarVisible = false;
                             context.hideToolbar();
                         } else {
-                            isToolbarShown = true;
+                            isToolbarVisible = true;
                             context.showToolbar();
                         }
                     }
                 }
             });
+
+
+
         }
 
-        if(isToolbarShown) context.showToolbar();
+        if(isToolbarVisible) context.showToolbar();
         else context.hideToolbar();
 
         return root;
@@ -124,5 +134,8 @@ public class SearchFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putParcelable("adapter", recycler_adapter);
+        outState.putBoolean("isToolbarVisible", isToolbarVisible);
     }
 }
