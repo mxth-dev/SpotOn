@@ -1,9 +1,18 @@
 <resources>
     <string name="app_name">SpotOn</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_credits">Credits</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="credits">
+        <![CDATA[
+            Created by <a href="https://github.com/TheUserFormerlyKnownAsBendix/SpotOn">Max Theisen</a><br/>
+            Cover photo by <a href="https://www.flickr.com/photos/gagilas">Petras Gagilas</a> via Flickr <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC BY-SA 2.0</a>
+        ]]>
+    </string>
+
+    <string name="label_credits">Credits</string>
+    <string name="label_top_tracks">Top Tracks</string>
+
+    <string name="toast_artist_not_found">Artist not found.</string>
+
 </resources>

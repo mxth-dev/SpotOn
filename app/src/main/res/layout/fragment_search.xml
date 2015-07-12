@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="at.dingbat.spoton.fragment.SearchFragment">
+    tools:context="at.dingbat.spoton.fragment.SearchFragment"
+    android:background="@color/background">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_search_recycler"

@@ -40,14 +40,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imple
     }
 
     public Adapter(Parcel parcel) {
-        /*Parcelable[] arr = parcel.readParcelableArray(new ClassLoader() {
-            @Override
-            protected Class<?> findClass(String className) throws ClassNotFoundException {
-                if(className.equals(ArtistListItemDataHolder.class.getName())) return ArtistListItemDataHolder.class;
-                else if(className.equals(SearchViewDataHolder.class.getName())) return SearchViewDataHolder.class;
-                return super.findClass(className);
-            }
-        });*/
         Parcelable[] arr = parcel.readParcelableArray(ClassLoader.getSystemClassLoader());
         items = new ArrayList<DataHolder>();
         for(Parcelable p: arr) {
@@ -81,7 +73,6 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imple
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Log.d("", "ViewType: "+getItemViewType(position));
         switch (getItemViewType(position)) {
             case TYPE_ARTIST:
                 ((ArtistListItem.ViewHolder)holder).item.setArtist(((ArtistListItemDataHolder)items.get(position)).artist);

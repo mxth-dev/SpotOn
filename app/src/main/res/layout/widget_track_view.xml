@@ -22,10 +22,29 @@
                 android:layout_height="100dp"
                 android:src="@mipmap/ic_placeholder" />
 
-            <TextView
-                android:id="@+id/widget_track_view_title"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_track_view_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/primaryText"
+                    android:paddingLeft="@dimen/padding"
+                    android:paddingRight="@dimen/padding"
+                    android:paddingTop="@dimen/padding"/>
+
+                <TextView
+                    android:id="@+id/widget_track_view_album"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/secondaryText"
+                    android:paddingLeft="@dimen/padding"
+                    android:paddingRight="@dimen/padding"/>
+
+            </LinearLayout>
 
         </LinearLayout>
 

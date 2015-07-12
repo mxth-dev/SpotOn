@@ -60,7 +60,6 @@ public class ArtistListItem extends RelativeLayout {
                     image.setVisibility(VISIBLE);
                     Picasso.with(context).load(artist.images.get(0).url).into(image);
                 }
-                else image.setVisibility(INVISIBLE);
                 text.setText(artist.name);
                 setOnClickListener(new OnClickListener() {
                     @Override

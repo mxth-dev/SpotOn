@@ -11,5 +11,7 @@
         <item name="android:colorPrimary">@color/colorPrimary</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textAppearanceLargePopupMenu">@style/PopupMenuLarge</item>
+        <item name="android:textAppearanceSmallPopupMenu">@style/PopupMenuSmall</item>
     </style>
 </resources>

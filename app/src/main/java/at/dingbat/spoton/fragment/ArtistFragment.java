@@ -29,6 +29,9 @@ import retrofit.client.Response;
 
 public class ArtistFragment extends Fragment {
 
+    public static final String TAG_ADAPTER = "adapter";
+    public static final String TAG_ARTIST = "artist";
+
     private MainActivity context;
 
     private ParcelableArtist artist;
@@ -56,14 +59,14 @@ public class ArtistFragment extends Fragment {
             recycler_layout = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
             recycler.setLayoutManager(recycler_layout);
 
-            artist = getArguments().getParcelable("artist");
+            artist = getArguments().getParcelable(TAG_ARTIST);
 
             if(savedInstanceState != null) {
-                recycler_adapter = savedInstanceState.getParcelable("adapter");
+                recycler_adapter = savedInstanceState.getParcelable(TAG_ADAPTER);
             } else {
                 recycler_adapter = new Adapter(new ArrayList<DataHolder>() {{
                     add(new ArtistHeaderViewDataHolder(artist));
-                    add(new SubtitleViewDataHolder("Top Tracks"));
+                    add(new SubtitleViewDataHolder(getResources().getString(R.string.label_top_tracks)));
                 }});
             }
 
@@ -130,6 +133,6 @@ public class ArtistFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putParcelable("adapter", recycler_adapter);
+        outState.putParcelable(TAG_ADAPTER, recycler_adapter);
     }
 }

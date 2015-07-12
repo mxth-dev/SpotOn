@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import at.dingbat.spoton.R;
+import at.dingbat.spoton.fragment.CreditsFragment;
 import at.dingbat.spoton.models.ParcelableArtist;
 import at.dingbat.spoton.fragment.ArtistFragment;
 import at.dingbat.spoton.fragment.SearchFragment;
@@ -42,6 +43,7 @@ public class MainActivity extends ActionBarActivity {
 
     private SearchFragment searchFragment;
     private ArtistFragment artistFragment;
+    private CreditsFragment creditsFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +83,15 @@ public class MainActivity extends ActionBarActivity {
 
     public void showArtist(ParcelableArtist artist) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable("artist", artist);
+        bundle.putParcelable(ArtistFragment.TAG_ARTIST, artist);
         artistFragment = new ArtistFragment();
         artistFragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
+    }
+
+    public void showCredits() {
+        creditsFragment = new CreditsFragment();
+        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, creditsFragment, "Credits").addToBackStack("Credits").commit();
     }
 
     public void search(String term) {
@@ -182,7 +189,8 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_credits) {
+            showCredits();
             return true;
         }
 

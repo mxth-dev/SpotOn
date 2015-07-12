@@ -33,6 +33,9 @@ import retrofit.client.Response;
  */
 public class SearchFragment extends Fragment {
 
+    public static final String TAG_ADAPTER = "adapter";
+    public static final String TAG_TOOLBAR_VISIBLE = "isToolbarVisible";
+
     private MainActivity context;
     private SpotifyService spotify;
 
@@ -63,8 +66,8 @@ public class SearchFragment extends Fragment {
             recycler.setLayoutManager(recycler_layout);
 
             if(savedInstanceState != null) {
-                recycler_adapter = savedInstanceState.getParcelable("adapter");
-                isToolbarVisible = savedInstanceState.getBoolean("isToolbarVisible");
+                recycler_adapter = savedInstanceState.getParcelable(TAG_ADAPTER);
+                isToolbarVisible = savedInstanceState.getBoolean(TAG_TOOLBAR_VISIBLE);
                 if(isToolbarVisible) context.showToolbar();
                 else context.hideToolbar();
             } else {
@@ -135,7 +138,7 @@ public class SearchFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putParcelable("adapter", recycler_adapter);
-        outState.putBoolean("isToolbarVisible", isToolbarVisible);
+        outState.putParcelable(TAG_ADAPTER, recycler_adapter);
+        outState.putBoolean(TAG_TOOLBAR_VISIBLE, isToolbarVisible);
     }
 }

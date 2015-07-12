@@ -2,7 +2,6 @@ package at.dingbat.spoton.widget;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -21,6 +20,7 @@ public class TrackView extends RelativeLayout {
 
     private ImageView image;
     private TextView title;
+    private TextView album;
 
     private ParcelableTrack track;
 
@@ -43,6 +43,7 @@ public class TrackView extends RelativeLayout {
 
         image = (ImageView) findViewById(R.id.widget_track_view_image);
         title = (TextView) findViewById(R.id.widget_track_view_title);
+        album = (TextView) findViewById(R.id.widget_track_view_album);
 
         initialized = true;
 
@@ -55,6 +56,7 @@ public class TrackView extends RelativeLayout {
         if(initialized) {
             Picasso.with(context).load(track.album.images.get(0).url).into(image);
             title.setText(track.name);
+            album.setText(track.album.name);
         }
     }
 
