@@ -1,21 +1,35 @@
 package at.dingbat.spoton.activity;
 
 import android.animation.ValueAnimator;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.fragment.CreditsFragment;
+import at.dingbat.spoton.fragment.PlayerFragment;
 import at.dingbat.spoton.models.ParcelableArtist;
 import at.dingbat.spoton.fragment.ArtistFragment;
 import at.dingbat.spoton.fragment.SearchFragment;
+import at.dingbat.spoton.models.ParcelableTrack;
+import at.dingbat.spoton.service.PlayerService;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 
@@ -24,9 +38,12 @@ public class MainActivity extends ActionBarActivity {
 
     public static final String PARCEL_RECYCLER_ADAPTER = "recycler_adapter";
     public static final String PARCEL_TOOLBAR_VISIBLE = "toolbar_visible";
+    private static final int REQUEST_CODE = 666;
+    private static final String REDIRECT_URI = "spoton://callback";
 
     private SpotifyApi api;
     private SpotifyService spotify;
+    private String token = "";
 
     private Toolbar toolbar;
 
@@ -44,6 +61,13 @@ public class MainActivity extends ActionBarActivity {
     private SearchFragment searchFragment;
     private ArtistFragment artistFragment;
     private CreditsFragment creditsFragment;
+    private PlayerFragment playerFragment;
+
+    private PlayerService service;
+    private boolean bound = false;
+
+    private SharedPreferences prefs;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +75,10 @@ public class MainActivity extends ActionBarActivity {
 
         setContentView(R.layout.activity_main);
 
-        api = new SpotifyApi();
-        spotify = api.getService();
-
         toolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
         setSupportActionBar(toolbar);
+
+        prefs = getSharedPreferences("spoton", MODE_PRIVATE);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +86,28 @@ public class MainActivity extends ActionBarActivity {
                 onBackPressed();
             }
         });
+
+        token = getAccessToken();
+
+        if(!token.equals("")) {
+
+            api = new SpotifyApi();
+            api.setAccessToken(token);
+            spotify = api.getService();
+
+            showSearch();
+
+        } else {
+
+            AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder("6d13aa27037a4863a1c505382b0ce9a7", AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+
+            builder.setScopes(new String[] {"streaming"});
+            AuthenticationRequest request = builder.build();
+
+            AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+        }
+
 
         if(savedInstanceState != null) {
             boolean tv = savedInstanceState.getBoolean(PARCEL_TOOLBAR_VISIBLE);
@@ -76,6 +121,27 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("", "onStart!");
+        Intent intent = new Intent(this, PlayerService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(bound) {
+            unbindService(connection);
+            bound = false;
+        }
+    }
+
+    public PlayerService getService() {
+        return service;
+    }
+
     public void showSearch() {
         searchFragment = new SearchFragment();
         getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, searchFragment, "Search").commit();
@@ -87,6 +153,14 @@ public class MainActivity extends ActionBarActivity {
         artistFragment = new ArtistFragment();
         artistFragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
+    }
+
+    public void showTrack(ParcelableTrack track) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("track", track);
+        playerFragment = new PlayerFragment();
+        playerFragment.setArguments(bundle);
+        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, playerFragment, "Track").addToBackStack("Track").commit();
     }
 
     public void showCredits() {
@@ -211,7 +285,54 @@ public class MainActivity extends ActionBarActivity {
         outState.putBoolean(PARCEL_TOOLBAR_VISIBLE, toolbarVisible);
     }
 
-    public SpotifyService getSpotifyService() {
-        return spotify;
+    private void saveAccessToken(String token) {
+        prefs.edit().putString("token", token).commit();
     }
+
+    private String getAccessToken() {
+        return prefs.getString("token", "");
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == REQUEST_CODE) {
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+
+            switch (response.getType()) {
+                case TOKEN:
+                    token = response.getAccessToken();
+                    saveAccessToken(response.getAccessToken());
+
+                    api = new SpotifyApi();
+                    api.setAccessToken(token);
+                    spotify = api.getService();
+
+                    showSearch();
+
+                    break;
+                case ERROR:
+                    Log.e("", "Something went terribly wrong: "+response.getError());
+                    break;
+            }
+        }
+    }
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.d("", "Service connected!");
+            PlayerService.Binder binder = (PlayerService.Binder) iBinder;
+            service = binder.getService();
+            bound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d("", "Service disconnected!");
+            unbindService(connection);
+            bound = false;
+        }
+    };
+
 }

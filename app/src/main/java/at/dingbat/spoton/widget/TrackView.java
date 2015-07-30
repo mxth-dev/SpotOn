@@ -2,6 +2,7 @@ package at.dingbat.spoton.widget;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import at.dingbat.spoton.R;
+import at.dingbat.spoton.activity.MainActivity;
 import at.dingbat.spoton.models.ParcelableTrack;
 
 /**
@@ -16,7 +18,7 @@ import at.dingbat.spoton.models.ParcelableTrack;
  */
 public class TrackView extends RelativeLayout {
 
-    private Context context;
+    private MainActivity context;
 
     private ImageView image;
     private TextView title;
@@ -37,7 +39,7 @@ public class TrackView extends RelativeLayout {
     public TrackView(Context context) {
         super(context);
 
-        this.context = context;
+        this.context = (MainActivity) context;
 
         inflate(context, R.layout.widget_track_view, this);
 
@@ -51,12 +53,18 @@ public class TrackView extends RelativeLayout {
 
     }
 
-    public void setTrack(ParcelableTrack track) {
+    public void setTrack(final ParcelableTrack track) {
         this.track = track;
         if(initialized) {
             Picasso.with(context).load(track.album.images.get(0).url).into(image);
             title.setText(track.name);
             album.setText(track.album.name);
+            setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    context.showTrack(track);
+                }
+            });
         }
     }
 
