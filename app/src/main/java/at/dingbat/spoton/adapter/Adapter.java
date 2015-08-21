@@ -84,7 +84,8 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> imple
                 ((ArtistHeaderView.ViewHolder)holder).item.setArtist(((ArtistHeaderViewDataHolder)items.get(position)).artist);
                 break;
             case TYPE_TRACK:
-                ((TrackView.ViewHolder)holder).item.setTrack(((TrackViewDataHolder)items.get(position)).track);
+                ((TrackView.ViewHolder)holder).item.setPlaylist(((TrackViewDataHolder) items.get(position)).playlist);
+                ((TrackView.ViewHolder)holder).item.setTrack(((TrackViewDataHolder) items.get(position)).track);
                 break;
             case TYPE_SUBTITLE:
                 ((SubtitleView.ViewHolder)holder).item.setTitle(((SubtitleViewDataHolder)items.get(position)).getTitle());

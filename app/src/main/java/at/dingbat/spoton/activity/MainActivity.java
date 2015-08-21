@@ -22,6 +22,8 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import java.util.Calendar;
+
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.fragment.CreditsFragment;
 import at.dingbat.spoton.fragment.PlayerFragment;
@@ -88,8 +90,10 @@ public class MainActivity extends ActionBarActivity {
         });
 
         token = getAccessToken();
+        long expiresIn = getAccessTokenExpirationTime();
 
-        if(!token.equals("")) {
+
+        if(!token.equals("") && expiresIn < Calendar.getInstance().getTimeInMillis()) {
 
             api = new SpotifyApi();
             api.setAccessToken(token);
@@ -155,11 +159,8 @@ public class MainActivity extends ActionBarActivity {
         getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
     }
 
-    public void showTrack(ParcelableTrack track) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("track", track);
+    public void showPlayer() {
         playerFragment = new PlayerFragment();
-        playerFragment.setArguments(bundle);
         getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, playerFragment, "Track").addToBackStack("Track").commit();
     }
 
@@ -285,12 +286,16 @@ public class MainActivity extends ActionBarActivity {
         outState.putBoolean(PARCEL_TOOLBAR_VISIBLE, toolbarVisible);
     }
 
-    private void saveAccessToken(String token) {
-        prefs.edit().putString("token", token).commit();
+    private void saveAccessToken(String token, long expiresIn) {
+        prefs.edit().putString("token", token).putLong("expiresIn", expiresIn).commit();
     }
 
     private String getAccessToken() {
         return prefs.getString("token", "");
+    }
+
+    private long getAccessTokenExpirationTime() {
+        return prefs.getLong("expiresIn", Long.MAX_VALUE);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -302,7 +307,8 @@ public class MainActivity extends ActionBarActivity {
             switch (response.getType()) {
                 case TOKEN:
                     token = response.getAccessToken();
-                    saveAccessToken(response.getAccessToken());
+                    long millis = Calendar.getInstance().getTimeInMillis() + response.getExpiresIn()*1000;
+                    saveAccessToken(response.getAccessToken(), millis);
 
                     api = new SpotifyApi();
                     api.setAccessToken(token);

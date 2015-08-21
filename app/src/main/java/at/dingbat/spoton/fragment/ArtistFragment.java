@@ -107,8 +107,12 @@ public class ArtistFragment extends Fragment {
                 context.getSpotify().getArtistTopTrack(artist.id, params, new Callback<Tracks>() {
                     @Override
                     public void success(Tracks ts, Response response) {
-                        for (Track t : ts.tracks) {
-                            tracks.add(new TrackViewDataHolder(new ParcelableTrack(t)));
+                        ArrayList<ParcelableTrack> playlist = new ArrayList<ParcelableTrack>();
+                        for(Track t: ts.tracks) {
+                           playlist.add(new ParcelableTrack(t));
+                        }
+                        for(ParcelableTrack pt : playlist) {
+                            tracks.add(new TrackViewDataHolder(pt, playlist));
                         }
                         context.runOnUiThread(new Runnable() {
                             @Override

@@ -16,12 +16,14 @@ public class ParcelableTrack extends Track implements Parcelable {
     public String name;
     public String preview_url;
     public ParcelableAlbumSimple album;
+    public ParcelableArtistSimple artist;
 
     public ParcelableTrack(Track track) {
         this.id = track.id;
         this.name = track.name;
         this.preview_url = track.preview_url;
         this.album = new ParcelableAlbumSimple(track.album);
+        this.artist = new ParcelableArtistSimple(track.artists.get(0));
     }
 
     public ParcelableTrack(Parcel parcel) {
@@ -29,6 +31,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.name = parcel.readString();
         this.preview_url = parcel.readString();
         this.album = parcel.readParcelable(ParcelableAlbumSimple.class.getClassLoader());
+        this.artist = parcel.readParcelable(ParcelableArtistSimple.class.getClassLoader());
     }
 
     @Override
@@ -43,5 +46,17 @@ public class ParcelableTrack extends Track implements Parcelable {
         dest.writeString(preview_url);
         dest.writeParcelable(album, flags);
     }
+
+    public static final Creator CREATOR = new Creator() {
+        @Override
+        public ParcelableTrack createFromParcel(Parcel parcel) {
+            return new ParcelableTrack(parcel);
+        }
+
+        @Override
+        public ParcelableTrack[] newArray(int i) {
+            return new ParcelableTrack[i];
+        }
+    };
 
 }

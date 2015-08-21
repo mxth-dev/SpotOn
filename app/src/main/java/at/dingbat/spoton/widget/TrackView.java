@@ -9,9 +9,12 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import at.dingbat.spoton.R;
 import at.dingbat.spoton.activity.MainActivity;
 import at.dingbat.spoton.models.ParcelableTrack;
+import at.dingbat.spoton.service.PlayerService;
 
 /**
  * Created by Max on 7/5/2015.
@@ -19,11 +22,13 @@ import at.dingbat.spoton.models.ParcelableTrack;
 public class TrackView extends RelativeLayout {
 
     private MainActivity context;
+    private PlayerService service;
 
     private ImageView image;
     private TextView title;
     private TextView album;
 
+    private ArrayList<ParcelableTrack> playlist;
     private ParcelableTrack track;
 
     private boolean initialized = false;
@@ -40,6 +45,7 @@ public class TrackView extends RelativeLayout {
         super(context);
 
         this.context = (MainActivity) context;
+        service = ((MainActivity) context).getService();
 
         inflate(context, R.layout.widget_track_view, this);
 
@@ -53,6 +59,10 @@ public class TrackView extends RelativeLayout {
 
     }
 
+    public void setPlaylist(ArrayList<ParcelableTrack> playlist) {
+        this.playlist = playlist;
+    }
+
     public void setTrack(final ParcelableTrack track) {
         this.track = track;
         if(initialized) {
@@ -62,7 +72,9 @@ public class TrackView extends RelativeLayout {
             setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    context.showTrack(track);
+                    service.setPlaylist(playlist);
+                    service.playTrack(playlist.indexOf(track));
+                    context.showPlayer();
                 }
             });
         }

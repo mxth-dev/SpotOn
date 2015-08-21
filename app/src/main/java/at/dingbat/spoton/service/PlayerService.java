@@ -29,6 +29,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private ArrayList<ParcelableTrack> list;
     private int currentTrack = 0;
 
+    private Runnable onTrackChanged;
+
 
     public class Binder extends android.os.Binder {
         public PlayerService getService() {
@@ -45,6 +47,13 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         player.setOnPreparedListener(this);
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL, "lock");
+
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                nextTrack();
+            }
+        });
     }
 
     public void setPlaylist(ArrayList<ParcelableTrack> list) {
@@ -72,6 +81,11 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         }
     }
 
+    public boolean isPlaying() {
+        return player.isPlaying();
+    }
+
+
     public void pause() {
         if(player != null && player.isPlaying()) {
             player.pause();
@@ -87,13 +101,60 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     public void nextTrack() {
-        currentTrack++;
-        if(currentTrack < list.size()) playTrack(currentTrack);
+        if(currentTrack+1 < list.size()) {
+            currentTrack++;
+            playTrack(currentTrack);
+        }
+
+        try {
+            if(onTrackChanged != null) onTrackChanged.run();
+        } catch (Exception e) {}
     }
 
     public void previousTrack() {
         if(player != null && player.isPlaying() && player.getCurrentPosition() < 3000) currentTrack--;
-        if(currentTrack >= 0) playTrack(currentTrack);
+        currentTrack = Math.max(0, currentTrack);
+        playTrack(currentTrack);
+
+        try {
+            if(onTrackChanged != null) onTrackChanged.run();
+        } catch (Exception e) {}
+    }
+
+    public ArrayList<ParcelableTrack> getPlaylist() {
+        return list;
+    }
+
+    public ParcelableTrack getCurrentTrack() {
+        return list.get(currentTrack);
+    }
+
+    public int getCurrentTrackIndex() {
+        return currentTrack;
+    }
+
+    public boolean isFirst() {
+        return currentTrack == 0;
+    }
+
+    public boolean isLast() {
+        return currentTrack == (list.size()-1);
+    }
+
+    public void setOnTrackChanged(Runnable onTrackChanged) {
+        this.onTrackChanged = onTrackChanged;
+    }
+
+    public int getCurrentPosition() {
+        return player.getCurrentPosition();
+    }
+
+    public int getDuration() {
+        return player.getDuration();
+    }
+
+    public void setPosition(int position) {
+        player.seekTo(position);
     }
 
     @Override
