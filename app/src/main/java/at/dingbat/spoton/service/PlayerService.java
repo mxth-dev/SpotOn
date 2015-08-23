@@ -7,11 +7,14 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import at.dingbat.spoton.models.ParcelableTrack;
 import kaaes.spotify.webapi.android.models.Track;
@@ -30,7 +33,15 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     private int currentTrack = 0;
 
     private Runnable onTrackChanged;
+    private Runnable onStateChanged;
+    private Runnable onProgressChanged;
+    private Runnable onPrepared;
 
+    private Timer timer;
+    private Handler handler;
+    private TimerTask timertask;
+
+    private boolean isPrepared = false;
 
     public class Binder extends android.os.Binder {
         public PlayerService getService() {
@@ -48,10 +59,34 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL, "lock");
 
+        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                if(onStateChanged != null) onStateChanged.run();
+                resume();
+                try {
+                    timer.schedule(timertask, 0, 1000);
+                } catch (Exception e) {}
+                isPrepared = true;
+            }
+        });
+
+        handler = new Handler();
+        timer = new Timer();
+
+        timertask = new TimerTask() {
+            @Override
+            public void run() {
+                if(onProgressChanged != null) onProgressChanged.run();
+            }
+        };
+
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                nextTrack();
+                try {
+                    nextTrack();
+                } catch(Exception e) {}
             }
         });
     }
@@ -69,7 +104,7 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         try {
             if(!wifiLock.isHeld()) wifiLock.acquire();
 
-            Log.d("", "Playing song '"+track.name+"' from url: "+track.preview_url);
+            Log.d("", "Playing song '" +track.name+"' from url: "+track.preview_url);
 
             if(player.isPlaying()) player.stop();
             player.reset();
@@ -90,6 +125,8 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         if(player != null && player.isPlaying()) {
             player.pause();
             wifiLock.release();
+            if(onStateChanged != null) onStateChanged.run();
+            timer.purge();
         }
     }
 
@@ -97,10 +134,17 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         if(player != null && !player.isPlaying()) {
             wifiLock.acquire();
             player.start();
+            if(onStateChanged != null) onStateChanged.run();
+            try {
+                timer.schedule(timertask, 0, 1000);
+            } catch(Exception e) {}
         }
     }
 
     public void nextTrack() {
+
+        isPrepared = false;
+
         if(currentTrack+1 < list.size()) {
             currentTrack++;
             playTrack(currentTrack);
@@ -112,6 +156,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     }
 
     public void previousTrack() {
+
+        isPrepared = false;
+
         if(player != null && player.isPlaying() && player.getCurrentPosition() < 3000) currentTrack--;
         currentTrack = Math.max(0, currentTrack);
         playTrack(currentTrack);
@@ -145,12 +192,27 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         this.onTrackChanged = onTrackChanged;
     }
 
+    public void setOnStateChanged(Runnable onStateChanged) {
+        this.onStateChanged = onStateChanged;
+    }
+
+    public void setOnProgressChanged(Runnable onProgressChanged) {
+        this.onProgressChanged = onProgressChanged;
+    }
+
+    public void setOnPrepared(Runnable onPrepared) {
+        this.onPrepared = onPrepared;
+    }
+
     public int getCurrentPosition() {
         return player.getCurrentPosition();
     }
 
     public int getDuration() {
-        return player.getDuration();
+        /*if(isPrepared) return player.getDuration();
+        else return 0;*/
+        //Hardcoded because samples are always 30 seconds long
+        return 30000;
     }
 
     public void setPosition(int position) {
@@ -167,4 +229,9 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
         return binder;
     }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        player.stop();
+        return super.onUnbind(intent);
+    }
 }

@@ -1,6 +1,7 @@
 package at.dingbat.spoton.activity;
 
 import android.animation.ValueAnimator;
+import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,13 +10,16 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -48,6 +52,7 @@ public class MainActivity extends ActionBarActivity {
     private String token = "";
 
     private Toolbar toolbar;
+    private RelativeLayout root;
 
     private ValueAnimator hideToolbar;
     private ValueAnimator showToolbar;
@@ -63,12 +68,18 @@ public class MainActivity extends ActionBarActivity {
     private SearchFragment searchFragment;
     private ArtistFragment artistFragment;
     private CreditsFragment creditsFragment;
-    private PlayerFragment playerFragment;
+    private DialogFragment playerFragment;
 
     private PlayerService service;
     private boolean bound = false;
 
     private SharedPreferences prefs;
+
+    private boolean isArtistShown = false;
+    private boolean isPlayerShown = false;
+    private boolean isCreditsShown = false;
+
+    private Runnable onServiceConnected;
 
 
     @Override
@@ -76,6 +87,8 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        root = (RelativeLayout) findViewById(R.id.activity_main_root);
 
         toolbar = (Toolbar) findViewById(R.id.activity_main_toolbar);
         setSupportActionBar(toolbar);
@@ -93,19 +106,17 @@ public class MainActivity extends ActionBarActivity {
         long expiresIn = getAccessTokenExpirationTime();
 
 
-        if(!token.equals("") && expiresIn < Calendar.getInstance().getTimeInMillis()) {
+        if (!token.equals("") && expiresIn > Calendar.getInstance().getTimeInMillis()) {
 
             api = new SpotifyApi();
             api.setAccessToken(token);
             spotify = api.getService();
 
-            showSearch();
-
         } else {
 
             AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder("6d13aa27037a4863a1c505382b0ce9a7", AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
 
-            builder.setScopes(new String[] {"streaming"});
+            builder.setScopes(new String[]{"streaming"});
             AuthenticationRequest request = builder.build();
 
             AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
@@ -113,9 +124,13 @@ public class MainActivity extends ActionBarActivity {
         }
 
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
+            Intent intent = new Intent(this, PlayerService.class);
+            bindService(intent, connection, Context.BIND_AUTO_CREATE);
+            isPlayerShown = savedInstanceState.getBoolean("isPlayerShown");
+            if(isPlayerShown) onBackPressed();
             boolean tv = savedInstanceState.getBoolean(PARCEL_TOOLBAR_VISIBLE);
-            if(tv) showToolbar();
+            if (tv) showToolbar();
             else hideToolbar();
         } else {
             showSearch();
@@ -128,7 +143,6 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d("", "onStart!");
         Intent intent = new Intent(this, PlayerService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
@@ -148,25 +162,34 @@ public class MainActivity extends ActionBarActivity {
 
     public void showSearch() {
         searchFragment = new SearchFragment();
-        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, searchFragment, "Search").commit();
+        getFragmentManager().beginTransaction().add(R.id.activity_main_search_fragment, searchFragment, "Search").commit();
     }
 
     public void showArtist(ParcelableArtist artist) {
+        isArtistShown = true;
         Bundle bundle = new Bundle();
         bundle.putParcelable(ArtistFragment.TAG_ARTIST, artist);
         artistFragment = new ArtistFragment();
         artistFragment.setArguments(bundle);
-        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
+        getFragmentManager().beginTransaction().add(R.id.activity_main_artist_fragment, artistFragment, "Artist").addToBackStack("Artist").commit();
     }
 
     public void showPlayer() {
+        isPlayerShown = true;
         playerFragment = new PlayerFragment();
-        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, playerFragment, "Track").addToBackStack("Track").commit();
+        TelephonyManager telephony = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (telephony.getPhoneType() == TelephonyManager.PHONE_TYPE_NONE) {
+            playerFragment.setShowsDialog(true);
+            playerFragment.show(getFragmentManager(), "Player");
+        } else {
+            getFragmentManager().beginTransaction().add(R.id.activity_main_player_fragment, playerFragment, "Player").addToBackStack("Player").commit();
+        }
     }
 
     public void showCredits() {
+        isCreditsShown = true;
         creditsFragment = new CreditsFragment();
-        getFragmentManager().beginTransaction().replace(R.id.activity_main_fragment, creditsFragment, "Credits").addToBackStack("Credits").commit();
+        getFragmentManager().beginTransaction().add(R.id.activity_main_credits_fragment, creditsFragment, "Credits").addToBackStack("Credits").commit();
     }
 
     public void search(String term) {
@@ -277,13 +300,14 @@ public class MainActivity extends ActionBarActivity {
         if(getFragmentManager().getBackStackEntryCount() > 0) {
             getFragmentManager().popBackStack();
         } else super.onBackPressed();
+        if(isPlayerShown) isPlayerShown = false;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putParcelable(PARCEL_RECYCLER_ADAPTER, recycler_adapter);
         outState.putBoolean(PARCEL_TOOLBAR_VISIBLE, toolbarVisible);
+        outState.putBoolean("isPlayerShown", isPlayerShown);
     }
 
     private void saveAccessToken(String token, long expiresIn) {
@@ -296,6 +320,11 @@ public class MainActivity extends ActionBarActivity {
 
     private long getAccessTokenExpirationTime() {
         return prefs.getLong("expiresIn", Long.MAX_VALUE);
+    }
+
+    public void setOnServiceConnected(Runnable onServiceConnected) {
+        this.onServiceConnected = onServiceConnected;
+        if(bound == true) onServiceConnected.run();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -331,6 +360,7 @@ public class MainActivity extends ActionBarActivity {
             PlayerService.Binder binder = (PlayerService.Binder) iBinder;
             service = binder.getService();
             bound = true;
+            if(onServiceConnected != null) onServiceConnected.run();
         }
 
         @Override

@@ -15,6 +15,7 @@ public class ParcelableTrack extends Track implements Parcelable {
     public String id;
     public String name;
     public String preview_url;
+    public long duration_ms;
     public ParcelableAlbumSimple album;
     public ParcelableArtistSimple artist;
 
@@ -22,6 +23,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.id = track.id;
         this.name = track.name;
         this.preview_url = track.preview_url;
+        this.duration_ms = track.duration_ms;
         this.album = new ParcelableAlbumSimple(track.album);
         this.artist = new ParcelableArtistSimple(track.artists.get(0));
     }
@@ -30,6 +32,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         this.id = parcel.readString();
         this.name = parcel.readString();
         this.preview_url = parcel.readString();
+        this.duration_ms = parcel.readLong();
         this.album = parcel.readParcelable(ParcelableAlbumSimple.class.getClassLoader());
         this.artist = parcel.readParcelable(ParcelableArtistSimple.class.getClassLoader());
     }
@@ -44,6 +47,7 @@ public class ParcelableTrack extends Track implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(preview_url);
+        dest.writeLong(duration_ms);
         dest.writeParcelable(album, flags);
     }
 

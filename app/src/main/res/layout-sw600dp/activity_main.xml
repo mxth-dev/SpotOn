@@ -6,15 +6,24 @@
     tools:context=".SearchActivity"
     android:id="@+id/activity_main_root">
 
-    <FrameLayout
-        android:id="@+id/activity_main_search_fragment"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <FrameLayout
-        android:id="@+id/activity_main_artist_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></FrameLayout>
+        <FrameLayout
+            android:id="@+id/activity_main_search_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"></FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/activity_main_artist_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"></FrameLayout>
+
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/activity_main_player_fragment"
