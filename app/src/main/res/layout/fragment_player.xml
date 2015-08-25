@@ -5,27 +5,41 @@
     android:layout_height="match_parent"
     tools:context="at.dingbat.spoton.fragment.PlayerFragment">
 
-    <TextView
-        android:id="@+id/fragment_player_artist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textColor="@color/white"/>
-
-    <TextView
-        android:id="@+id/fragment_player_album"
-        android:layout_below="@id/fragment_player_artist"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textColor="@color/white"/>
-
     <ImageView
         android:id="@+id/fragment_player_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
+    <TextView
+        android:id="@+id/fragment_player_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:gravity="center_horizontal"
+        android:textSize="24sp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowRadius="4"/>
+
+    <TextView
+        android:id="@+id/fragment_player_album"
+        android:layout_below="@id/fragment_player_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowRadius="4"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/shadow"></RelativeLayout>
 
     <TextView
         android:id="@+id/fragment_player_title"
@@ -35,7 +49,9 @@
         android:layout_marginBottom="100dp"
         android:gravity="center_horizontal"
         android:textSize="20sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
+        android:shadowColor="@color/black"
+        android:shadowRadius="4"/>
 
     <LinearLayout
         android:id="@+id/fragment_player_linear"
@@ -54,7 +70,9 @@
             android:layout_weight="0"
             android:layout_gravity="center_vertical"
             android:textColor="@color/white"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:shadowColor="@color/black"
+            android:shadowRadius="4"/>
 
         <SeekBar
             android:id="@+id/fragment_player_seekbar"
@@ -75,7 +93,9 @@
             android:layout_weight="0"
             android:layout_gravity="center_vertical"
             android:textColor="@color/white"
-            android:textSize="14sp"/>
+            android:textSize="14sp"
+            android:shadowColor="@color/black"
+            android:shadowRadius="4"/>
 
     </LinearLayout>
 

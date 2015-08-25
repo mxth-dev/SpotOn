@@ -1,5 +1,7 @@
 package at.dingbat.spoton.service;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import at.dingbat.spoton.activity.MainActivity;
 import at.dingbat.spoton.models.ParcelableTrack;
 import kaaes.spotify.webapi.android.models.Track;
 
@@ -53,6 +56,13 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d("", "onCreate");
+
+        /*Notification n = new Notification();
+        n.tickerText = "SpotOn";
+        n.fullScreenIntent = PendingIntent.getBroadcast(getApplicationContext(), 1, new Intent(getApplicationContext(), MainActivity.class), 0);
+        startForeground(1, n);*/
+
         player = new MediaPlayer();
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
         player.setOnPreparedListener(this);
@@ -89,6 +99,12 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
                 } catch(Exception e) {}
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d("", "onDestroy");
+        super.onDestroy();
     }
 
     public void setPlaylist(ArrayList<ParcelableTrack> list) {
@@ -231,7 +247,13 @@ public class PlayerService extends Service implements MediaPlayer.OnPreparedList
 
     @Override
     public boolean onUnbind(Intent intent) {
-        player.stop();
+        //player.stop();
         return super.onUnbind(intent);
     }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
 }

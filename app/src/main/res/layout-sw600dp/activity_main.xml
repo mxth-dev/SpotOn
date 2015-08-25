@@ -4,7 +4,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".SearchActivity"
-    android:id="@+id/activity_main_root">
+    android:id="@+id/activity_main_root"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,24 +109,39 @@ public class ArtistFragment extends Fragment {
                     @Override
                     public void success(Tracks ts, Response response) {
                         ArrayList<ParcelableTrack> playlist = new ArrayList<ParcelableTrack>();
-                        for(Track t: ts.tracks) {
-                           playlist.add(new ParcelableTrack(t));
-                        }
-                        for(ParcelableTrack pt : playlist) {
-                            tracks.add(new TrackViewDataHolder(pt, playlist));
-                        }
-                        context.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                recycler_adapter.replaceAll(2, tracks);
-                                recycler_adapter.notifyDataSetChanged();
+
+                        if(ts.tracks.size() == 0) {
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    context.showToast(getResources().getString(R.string.toast_no_songs), Toast.LENGTH_SHORT);
+                                }
+                            });
+                        } else {
+                            for (Track t : ts.tracks) {
+                                playlist.add(new ParcelableTrack(t));
                             }
-                        });
+                            for (ParcelableTrack pt : playlist) {
+                                tracks.add(new TrackViewDataHolder(pt, playlist));
+                            }
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    recycler_adapter.replaceAll(2, tracks);
+                                    recycler_adapter.notifyDataSetChanged();
+                                }
+                            });
+                        }
                     }
 
                     @Override
                     public void failure(RetrofitError error) {
-
+                        context.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                context.showToast(getResources().getString(R.string.toast_error_loading_songs), Toast.LENGTH_SHORT);
+                            }
+                        });
                     }
                 });
             }

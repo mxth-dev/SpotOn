@@ -189,9 +189,6 @@ public class PlayerFragment extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            service.pause();
-        } catch (Exception e) {}
     }
 
     private void setTrack(ParcelableTrack track) {

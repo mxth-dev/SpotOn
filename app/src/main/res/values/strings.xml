@@ -13,6 +13,9 @@
     <string name="label_credits">Credits</string>
     <string name="label_top_tracks">Top Tracks</string>
 
+    <string name="toast_no_songs">Nothing to see here. Try another artist!</string>
+    <string name="toast_error_loading_songs">Oops! There was an error retrieving the songs!</string>
+
     <string name="toast_artist_not_found">Artist not found.</string>
 
 <!-- TODO: Remove or change this placeholder text -->

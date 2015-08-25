@@ -72,9 +72,14 @@ public class TrackView extends RelativeLayout {
             setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    service.setPlaylist(playlist);
-                    service.playTrack(playlist.indexOf(track));
-                    context.showPlayer();
+                    if(service == null) service = context.getService();
+                    try {
+                        service.setPlaylist(playlist);
+                        service.playTrack(playlist.indexOf(track));
+                        context.showPlayer();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }

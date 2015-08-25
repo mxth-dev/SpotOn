@@ -128,7 +128,7 @@ public class MainActivity extends ActionBarActivity {
             Intent intent = new Intent(this, PlayerService.class);
             bindService(intent, connection, Context.BIND_AUTO_CREATE);
             isPlayerShown = savedInstanceState.getBoolean("isPlayerShown");
-            if(isPlayerShown) onBackPressed();
+            //if(isPlayerShown) onBackPressed();
             boolean tv = savedInstanceState.getBoolean(PARCEL_TOOLBAR_VISIBLE);
             if (tv) showToolbar();
             else hideToolbar();
@@ -144,6 +144,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
         Intent intent = new Intent(this, PlayerService.class);
+        startService(intent);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 
@@ -154,6 +155,11 @@ public class MainActivity extends ActionBarActivity {
             unbindService(connection);
             bound = false;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     public PlayerService getService() {
@@ -298,9 +304,16 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onBackPressed() {
         if(getFragmentManager().getBackStackEntryCount() > 0) {
+            if(getFragmentManager().getBackStackEntryCount() == 1) {
+                showToolbarBackArrow(false);
+                setToolbarText(getResources().getString(R.string.app_name));
+            }
             getFragmentManager().popBackStack();
         } else super.onBackPressed();
-        if(isPlayerShown) isPlayerShown = false;
+        if(isPlayerShown) {
+            service.pause();
+            isPlayerShown = false;
+        }
     }
 
     @Override
